@@ -72,14 +72,7 @@ function getItems() {
         let itemInfoPrice = document.createElement("div");
         itemInfosDiv.appendChild(itemInfoPrice);
         itemInfoPrice.classList.add("item-infos-price");
-
-
-        // Formatage du prix pour l'afficher en euros
-        dataAPI[item].price = dataAPI[item].price;
-        itemInfoPrice.innerHTML = new Intl.NumberFormat("fr-FR", {
-          style: "currency",
-          currency: "EUR",
-        }).format(dataAPI[item].price);
+        itemInfoPrice.innerHTML = `${dataAPI[item].price},00 €`;
       }
     });
 
