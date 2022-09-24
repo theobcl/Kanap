@@ -15,31 +15,35 @@ function getItems() {
     .catch((error) => {
       let itemsContainer = document.querySelector(".items");
       itemsContainer.innerHTML =
-        "Nous n'avons pas réussi à afficher nos produits. Avez vous bien lancé le serveur local (Port 3000) ? <br>Si le problème persiste, contactez-nous.";
+        "Nous n'avons pas réussi à afficher nos produits. Avez vous bien lancé le serveur local (Port 3000) ?";
       itemsContainer.style.textAlign = "center";
       itemsContainer.style.padding = "50px 0";
     })
   
-    // Dispatcher les données de chaque produit (prix, nom...) dans le DOM
+    // Générer les éléments HTML de la page d'accueil a partir du résultat du fetching
     .then(function (dataAPI) {
       const items = dataAPI;
       console.log(items);
 
+      // Itérer sur le tableau json et créer une carte par produit
       for (let item in items) {
         let itemCard = document.createElement("div");
         document.querySelector(".items").appendChild(itemCard);
         itemCard.classList.add("item");
         itemCard.style.padding = "40px 0px";
         
+        // Générer les liens vers les pages produits
         let itemLink = document.createElement("a");
         itemCard.appendChild(itemLink);
         itemLink.href = `product.html?id=${dataAPI[item]._id}`;
         itemLink.classList.add("stretched-link");
 
+        // Générer la div contenant l'image de la carte produit
         let itemImgDiv = document.createElement("div");
         itemLink.appendChild(itemImgDiv);
-        itemImgDiv.classList.add("item__img");
-
+        itemImgDiv.classList.add("item-img");
+        
+        // Générer l'image de la carte produit
         let itemImg = document.createElement("img");
         itemImgDiv.appendChild(itemImg);
         itemImg.src = dataAPI[item].imageUrl;
@@ -47,27 +51,27 @@ function getItems() {
         itemImg.style.height = "200px";
         itemImg.style.borderRadius = "25px 25px 0px 0px"
 
+        // Générer la div contenant les infos de la carte produit
         let itemInfosDiv = document.createElement("div");
         itemLink.appendChild(itemInfosDiv);
-        itemInfosDiv.classList.add("item__infos");
+        itemInfosDiv.classList.add("item-infos");
+        itemInfosDiv.style.background = "white";
+        itemInfosDiv.style.color = "#3498db"; 
+        itemInfosDiv.style.textAlign = "center"; 
+        itemInfosDiv.style.borderRadius = "0px 0px 25px 25px"
+        itemInfosDiv.style.margin = "-10px 0px 0px 0px"; 
+        itemInfosDiv.style.padding = "0px 0px 10px 0px"; 
 
+        // Générer le nom du produit
         let itemInfoTitle = document.createElement("div");
         itemInfosDiv.appendChild(itemInfoTitle);
-        itemInfoTitle.classList.add("item__infos__title");
+        itemInfoTitle.classList.add("item-infos-title");
         itemInfoTitle.innerHTML = dataAPI[item].name;
-        itemInfoTitle.style.background = "white";
-        itemInfoTitle.style.color = "#3498db"; 
-        itemInfoTitle.style.margin = "-10px 0px 0px 0px"; 
-        itemInfoTitle.style.textAlign = "center"; 
-
+        
+        // Générer le prix du produit 
         let itemInfoPrice = document.createElement("div");
         itemInfosDiv.appendChild(itemInfoPrice);
-        itemInfoPrice.classList.add("item__infos__price");
-        itemInfoPrice.style.background = "white";
-        itemInfoPrice.style.color = "#3498db"; 
-        itemInfoPrice.style.borderRadius = "0px 0px 25px 25px"
-        itemInfoPrice.style.padding = "0px 0px 10px 0px"; 
-        itemInfoPrice.style.textAlign = "center"; 
+        itemInfoPrice.classList.add("item-infos-price");
 
 
         // Formatage du prix pour l'afficher en euros
