@@ -115,7 +115,7 @@ function addToCart() {
     
     // Redirection vers le panier
     alert("Votre sélection a été ajouté au panier")
-    window.location.href = '/front/html/cart.html'
+    window.location.href = 'cart.html'
     };
   });
 };
