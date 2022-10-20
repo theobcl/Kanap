@@ -1,10 +1,11 @@
-main(); 
+main();
 
 function main() {
-	displayCartContent(); 
+	displayCartContent();
 };
 
 function displayCartContent () {
+	// Récupérer les données de tous les items dans l'API
   fetch("http://localhost:3000/api/products")
   .then(function(res) {
     if (res.ok) {
@@ -12,15 +13,19 @@ function displayCartContent () {
     }
   })
 
-  .then(function(productsList) {  
+  .then(function(productsList) {
+		// Récupérer les éléments stockés dans le localStorage
 		let productInLocalStorage = JSON.parse(localStorage.getItem('item'));
 
+		// pour chaque élement contenu dans le LS
 		let cart = productInLocalStorage.map(product => {
+
 			const index = productsList.findIndex(item => item._id === product.id, item => item.color === product.color);
 			const data = productsList[index];
-			
+			// pour chaque
+			// et créer un object contenant les infos stocké
 			return {
-				...product, 
+				...product,
 				name: data.name,
 				imageUrl: data.imageUrl,
 				price: data.price,
@@ -65,7 +70,7 @@ function displayCartContent () {
 					item.addEventListener("click", removeFromCart)
 			}
 
-		let totalQuantity = cart.reduce((acc , val) => acc + val.quantity, 0); 
+		let totalQuantity = cart.reduce((acc , val) => acc + val.quantity, 0);
 		document.getElementById("totalQuantity").innerText = totalQuantity;
 
 		document.getElementById("totalPrice").innerText = cart.reduce((acc , val) => acc + val.totalPrice, 0)
