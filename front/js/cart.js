@@ -4,6 +4,8 @@ function main() {
 	displayCartContent(); 
 };
 
+//// Affichage Panier ////
+
 function displayCartContent () {
   fetch("http://localhost:3000/api/products")
 	// Récupérer les données de tous les items dans l'API
@@ -89,7 +91,6 @@ function displayCartContent () {
 function changeQuantity(e) {
 	const [ cart, index ] = getCartAndProductIndex(e)
 	cart[index].quantity = parseInt(e.target.value)
-	console.log(e.target)
 	localStorage.setItem('item', JSON.stringify(cart))
 	displayCartContent();
 }
@@ -122,3 +123,122 @@ function getProductIdAndColor(e) {
 function getCartIndex(cart, id, color) {
 	return cart.findIndex(item => item.color === color && item.id === id)
 }
+
+
+
+//// Remplissage formulaire ////
+
+//  Check que la valeur du champs n'est pas nulle et ne contient pas plus de 99 caractères
+function notEmptyNotTooLong(value) {
+	return value.length > 0 && value.length < 100
+}
+
+// Function notEmptyNotTooLong() + Check si la valeur du champs contient un ou plusieurs chiffres
+function notEmptyNotTooLongNoNumbers (value) {
+	return notEmptyNotTooLong(value) && /^([^0-9]*)$/.test(value)
+}
+
+// Check que la valeur du champs est un email valide
+function isValidEmail(value) {
+	return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)
+}
+
+// Check si la validation d'un champs est true
+function fieldIsValid(field) {
+	return field.validation(document.getElementById(field.id).value)
+}
+
+
+function getContactObject(fields) {
+	return Object.fromEntries(fields.map(field => [field.id, document.getElementById(field.id).value]))
+}
+
+
+function handleSubmit(contact) {
+	let productsIds=[]
+	console.log(localStorage)
+	const data = JSON.parse(localStorage.cart)
+	for (let i=0 ; i< data.length ; i++) {
+		const item = data[i]
+		productsIds.push(item.productId);
+	}
+	const postData = {
+		contact: contact,
+		products: productsIds
+	}
+	send(postData)
+}
+
+
+function send(postData) {
+	fetch('http://localhost:3000/api/products/order', {
+		method : "POST",
+		headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(postData),
+	})
+	.then(function(res){
+			if(res.ok){
+					return res.json()
+			}
+	})
+	.then(function(value){
+			localStorage.clear();
+			document.location.href=`confirmation.html?orderId=${value.orderId}`
+	})
+	.catch(function(err){
+			console.log(`erreur ${err}`)
+	})
+}
+
+displayCartContent()
+
+const fields = [
+	{
+			id: "firstName",
+			validation: notEmptyNotTooLongNoNumbers,
+			errorMsg: "Le champ doit contenir entre 1 et 99 caractères sans chiffres"
+	},
+	{
+			id: "lastName",
+			validation: notEmptyNotTooLongNoNumbers,
+			errorMsg: "Le champ doit contenir entre 1 et 99 caractères sans chiffres"
+	},
+	{
+			id: "address",
+			validation: notEmptyNotTooLong,
+			errorMsg: "Le champ doit contenir entre 1 et 99 caractères"
+	},
+	{
+			id: "city",
+			validation: notEmptyNotTooLong,
+			errorMsg: "Le champ doit contenir entre 1 et 99 caractères"
+	},
+	{
+			id: "email",
+			validation: isValidEmail,
+			errorMsg: "Cet email n'est pas valide"
+	}
+]
+
+// Affiche un message d'erreur si le champs n'est pas valide
+fields.forEach(field => {
+	document.getElementById(field.id).addEventListener('input', (e) => {
+			const value = e.target.value
+			document.getElementById(`${field.id}ErrorMsg`).innerText = field.validation(value) ? "" : field.errorMsg
+	});
+})
+
+
+const submitButton = document.getElementById("order")
+submitButton.addEventListener('click',function(e){
+	e.preventDefault()
+	console.log(fields.every(field => fieldIsValid(field)))
+	const fieldsAreValid = fields.every(field => fieldIsValid(field))
+	if (fieldsAreValid) {
+			const contact = getContactObject(fields)
+			handleSubmit(contact)
+	}
+})
