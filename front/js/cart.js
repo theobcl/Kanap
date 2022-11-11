@@ -1,7 +1,7 @@
-main(); 
+main();
 
 function main() {
-	displayCartContent(); 
+	displayCartContent();
 };
 
 //// Affichage Panier ////
@@ -15,7 +15,7 @@ function displayCartContent () {
     }
   })
 
-  .then(function(productsList) {  
+  .then(function(productsList) {
 		// Récupérer les données des items stocké dans le LS
 		let productInLocalStorage = JSON.parse(localStorage.getItem('item'));
 
@@ -26,7 +26,7 @@ function displayCartContent () {
 			const data = productsList[index];
 			// Générer un hash contenant les infos propres à cet item
 			return {
-				...product, 
+				...product,
 				name: data.name,
 				imageUrl: data.imageUrl,
 				price: data.price,
@@ -75,7 +75,7 @@ function displayCartContent () {
 			}
 
 		// Affichage de la quantité total de produit dans le panier
-		let totalQuantity = cart.reduce((acc , val) => acc + val.quantity, 0); 
+		let totalQuantity = cart.reduce((acc , val) => acc + val.quantity, 0);
 		document.getElementById("totalQuantity").innerText = totalQuantity;
 
 		// Affichage du prix total du panier
@@ -126,6 +126,8 @@ function getCartIndex(cart, id, color) {
 
 
 
+
+
 //// Remplissage formulaire ////
 
 //  Check que la valeur du champs n'est pas nulle et ne contient pas plus de 99 caractères
@@ -148,53 +150,10 @@ function fieldIsValid(field) {
 	return field.validation(document.getElementById(field.id).value)
 }
 
-
-function getContactObject(fields) {
-	return Object.fromEntries(fields.map(field => [field.id, document.getElementById(field.id).value]))
-}
-
-
-function handleSubmit(contact) {
-	let productsIds=[]
-	console.log(localStorage)
-	const data = JSON.parse(localStorage.cart)
-	for (let i=0 ; i< data.length ; i++) {
-		const item = data[i]
-		productsIds.push(item.productId);
-	}
-	const postData = {
-		contact: contact,
-		products: productsIds
-	}
-	send(postData)
-}
-
-
-function send(postData) {
-	fetch('http://localhost:3000/api/products/order', {
-		method : "POST",
-		headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(postData),
-	})
-	.then(function(res){
-			if(res.ok){
-					return res.json()
-			}
-	})
-	.then(function(value){
-			localStorage.clear();
-			document.location.href=`confirmation.html?orderId=${value.orderId}`
-	})
-	.catch(function(err){
-			console.log(`erreur ${err}`)
-	})
-}
-
-displayCartContent()
-
+// Création d'un array de hash pour chaque champs du formulaire avec comme clefs :
+	// 1 - l'id de l'input HTML
+	// 2 - le résultat (boolean) de la validation du champs
+	// 3 - le message d'erreur à afficher dans le cas ou validation: false
 const fields = [
 	{
 			id: "firstName",
@@ -231,14 +190,60 @@ fields.forEach(field => {
 	});
 })
 
-
+// Au clique sur le bouton "Commander !"
 const submitButton = document.getElementById("order")
-submitButton.addEventListener('click',function(e){
+submitButton.addEventListener('click', function(e) {
 	e.preventDefault()
-	console.log(fields.every(field => fieldIsValid(field)))
+	// Check que tous les champs sont valides
 	const fieldsAreValid = fields.every(field => fieldIsValid(field))
 	if (fieldsAreValid) {
-			const contact = getContactObject(fields)
-			handleSubmit(contact)
+		const contact = getContactObject(fields)
+		handleSubmit(contact)
 	}
 })
+
+// Génère un hash avec le contenu du formulaire complété par le user
+function getContactObject(fields) {
+	return Object.fromEntries(fields.map(field => [field.id, document.getElementById(field.id).value]))
+}
+
+function handleSubmit(contact) {
+	let productsIds=[]
+	// Recupère les infos contenu dans le panier
+	const data = JSON.parse(localStorage.cart)
+	// Ajouter chaque item du panier dans l'arret productsIds
+	for (let i=0 ; i< data.length ; i++) {
+		const item = data[i]
+		productsIds.push(item.productId);
+	}
+	// Génére un hash contant les infos des items du panier + les infos du formulaire
+	const postData = {
+		contact: contact,
+		products: productsIds
+	}
+	send(postData)
+}
+
+// Requete Post pour envoyer les données du panier et du formulaire sur l'API
+function send(postData) {
+	fetch('http://localhost:3000/api/products/order', {
+		method : "POST",
+		headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(postData),
+	})
+	.then(function(res){
+			if(res.ok){
+					return res.json()
+			}
+	})
+	.then(function(value){
+			localStorage.clear();
+			document.location.href=`confirmation.html?orderId=${value.orderId}`
+	})
+	.catch(function(err){
+			console.log(`erreur ${err}`)
+	})
+}
