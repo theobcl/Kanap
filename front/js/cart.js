@@ -210,11 +210,11 @@ function getContactObject(fields) {
 function handleSubmit(contact) {
 	let productsIds=[]
 	// Recupère les infos contenu dans le panier
-	const data = JSON.parse(localStorage.cart)
+	const data = JSON.parse(localStorage.getItem('item'))
 	// Ajouter chaque item du panier dans l'arret productsIds
 	for (let i=0 ; i< data.length ; i++) {
 		const item = data[i]
-		productsIds.push(item.productId);
+		productsIds.push(item.id);
 	}
 	// Génére un hash contant les infos des items du panier + les infos du formulaire
 	const postData = {
