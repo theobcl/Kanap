@@ -90,6 +90,13 @@ function displayCartContent () {
 // 1. Change le quantité d'item dans le panier
 function changeQuantity(e) {
 	const [ cart, index ] = getCartAndProductIndex(e)
+
+	if (e.target.value > 100) {
+		e.target.value = 100;
+	} else if (e.target.value < 0) {
+		e.target.value = 0;
+	};
+
 	cart[index].quantity = parseInt(e.target.value)
 	localStorage.setItem('item', JSON.stringify(cart))
 	displayCartContent();
@@ -216,12 +223,14 @@ function handleSubmit(contact) {
 		const item = data[i]
 		productsIds.push(item.id);
 	}
-	// Génére un hash contant les infos des items du panier + les infos du formulaire
+	// Génére un hash contenant les infos des items du panier + les infos du formulaire
 	const postData = {
 		contact: contact,
 		products: productsIds
 	}
-	send(postData)
+	if (JSON.parse(localStorage.getItem("item")).length != 0) {
+		send(postData)
+	}
 }
 
 // Requete Post pour envoyer les données du panier et du formulaire sur l'API
